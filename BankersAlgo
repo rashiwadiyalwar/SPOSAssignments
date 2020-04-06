@@ -1,0 +1,159 @@
+  
+import java.util.*;
+
+public class BankersAlgorithm {
+
+	int allocated[][], maximum[][], need[][], resAllocated[], resAvailable[], total[];
+	Scanner sc;
+	int p,r;
+	
+	public BankersAlgorithm(int r, int p, int[] total)
+	{
+		allocated = new int[p][r];
+		maximum = new int[p][r];
+		need = new int[p][r];
+		resAllocated = new int[r];
+		resAvailable = new int[r];
+		this.total = total;
+		this.r = r;
+		this.p = p;
+		sc = new Scanner(System.in);
+	}
+	public void initiate()
+	{
+		for(int i =0;i<r;i++)
+			resAllocated[i] = 0;
+		//Allocation Matrix
+		System.out.print("\nEnter number of resources allocated\n");
+		System.out.print("    R0");
+		for(int i =1;i<r;i++)
+		{
+			System.out.print(" R"+i);
+		}
+		for(int i =0;i<p;i++)
+		{
+			System.out.print("\nP"+i+" : ");
+			for(int j=0;j<r;j++)
+			{
+				allocated[i][j] = sc.nextInt();
+				resAllocated[j] += allocated[i][j];
+			}
+		}
+		System.out.println("_________________________________________");
+		System.out.println("Total resources Allocated and Available:");
+		System.out.println("_________________________________________");
+		System.out.println("     Total\tAllocated\tAvailable");
+		for(int i =0;i<r;i++)
+		{
+			System.out.print("\nR"+i+": \t"+total[i]+"\t"+resAllocated[i]+"\t\t");
+			resAvailable[i] = total[i] - resAllocated[i];
+			System.out.println(resAvailable[i]);
+		}
+		System.out.println("_________________________________________");	
+		
+		//Maximum Matrix
+		System.out.print("\nEnter Maximum Number of Resources \n");
+		System.out.print("\n    R0");
+		for(int i =1;i<r;i++)
+		{
+			System.out.print(" R"+i);
+		}
+		for(int i =0;i<p;i++)
+		{
+			System.out.print("\nP"+i+" : ");
+			for(int j=0;j<r;j++)
+			{
+				maximum[i][j] = sc.nextInt();
+				need[i][j] = maximum[i][j] - allocated[i][j]; 
+			}
+				
+		}
+		System.out.println("_________________________________________");
+		
+		//Displaying need matrix
+		System.out.println("NEED MATRIX");
+		System.out.print("\n    R0");
+		for(int i =1;i<r;i++)
+		{
+			System.out.print(" R"+i);
+		}
+		for(int i =0;i<p;i++)
+		{
+			System.out.print("\n\nP"+i+" : ");
+			for(int j=0;j<r;j++)
+			{
+				System.out.print(need[i][j]+" ");
+			}
+		}
+		System.out.println();
+		bankersImplementation();
+	}
+	public void bankersImplementation()
+	{
+		int flag;
+		List<Integer> safeSeq = new ArrayList<>();
+		boolean visited[] = new boolean[p];
+		int cnt=0;
+		
+		for(int i=0;i<p;i++)
+			visited[i] = false;
+		System.out.println("_________________________________________");
+		
+		for(int i =0;cnt != p;i=((i+1)%p))
+		{
+			if(!visited[i])
+			{
+				flag = 0;
+				inner : for(int j=0;j<r;j++)
+				{
+					if(need[i][j] <= resAvailable[j])
+						continue;
+					else
+					{
+						flag = 1;
+						break inner;
+					}
+				}
+				if(flag == 0)
+				{
+					cnt++;
+					System.out.println("\nProcess P"+i+" added to safe sequence");
+					safeSeq.add(i);
+					visited[i] = true;
+					for(int j=0;j<r;j++)
+						resAvailable[j] += allocated[i][j];
+					System.out.print("Updated Available Resources: \n");
+					for(int j=0;j<r;j++)
+						System.out.print(resAvailable[j]+"\t");
+					if(cnt!=p)
+						System.out.println(">>>>");
+				}
+			}
+		}
+		System.out.println("\n_________________________________________");
+		System.out.println("SAFE SEQUENCE\n\n");
+		for(int i =0;i<p;i++)
+			System.out.print(safeSeq.get(i)+"\t");
+		System.out.println("\n_________________________________________");
+	}
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("_____________BANKERS ALGORITHM______________");
+		System.out.print("\nEnter number of Resource Types > ");
+		int r = sc.nextInt();
+		System.out.print("\nEnter number of Processes > ");
+		int p = sc.nextInt();
+		System.out.println("_________________________________________");
+		System.out.println("\nEnter number of total resources of each type:");
+		int total[] = new int[r];
+		for(int i = 0 ; i<r ; i++)
+		{
+			System.out.print("\nResource "+(i+1)+" : ");
+			total[i] = sc.nextInt();
+		}
+		System.out.println("_________________________________________");
+		new BankersAlgorithm(r,p,total).initiate();
+		
+	}
+
+}
